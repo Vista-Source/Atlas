@@ -52,32 +52,32 @@ class Program
         {
             // Gather all .h headers in the target directory recursively
             string[] headerPaths = Directory.GetFiles(opts.Target, "*.h", SearchOption.AllDirectories);
+            var validHeaders = new List<string>();
 
             foreach (string header in headerPaths)
             {
-                // Generate glue output (C++ and C#)
-                Output headerGlue = Atlas.GenerateGlue(new FileInfo(header));
-                if (headerGlue.CPP == string.Empty || headerGlue.CS == string.Empty)
+                var headerGlue = Atlas.GenerateGlue(new FileInfo(header));
+                if (string.IsNullOrEmpty(headerGlue.CPP) || string.IsNullOrEmpty(headerGlue.CS))
                     continue;
 
-                // Determine base name (e.g., from folder name) for output files
+                validHeaders.Add(header);
+
                 string baseName = Path.GetFileNameWithoutExtension(header);
                 string outputDir = Path.GetDirectoryName(Path.GetFullPath(opts.Target)) ?? ".";
 
-                // Write generated glue files
                 File.WriteAllText(Path.Combine(outputDir, $"{baseName}.{Options.FilePrefix}.h"), headerGlue.CPP);
                 File.WriteAllText(Path.Combine(outputDir, $"{baseName}.{Options.FilePrefix}.cs"), headerGlue.CS);
-
-                // Generate and write master C++ glue file
-                List<string> relativeHeaders = headerPaths
-                    .Select(full => Path.GetRelativePath(outputDir, full).Replace('\\', '/'))
-                    .ToList();
-
-                string masterCpp = Atlas.GenerateMasterCPP(relativeHeaders);
-                File.WriteAllText(Path.Combine(outputDir, "Atlas.cpp"), masterCpp);
-
-                return 0;
             }
+
+            // Use only the valid headers for master CPP
+            var relativeHeaders = validHeaders
+                .Select(full => Path.GetRelativePath(Path.GetDirectoryName(Path.GetFullPath(opts.Target)) ?? ".", full).Replace('\\', '/'))
+                .ToList();
+
+            string masterCpp = Atlas.GenerateMasterCPP(relativeHeaders);
+            File.WriteAllText(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(opts.Target)) ?? ".", "Atlas.cpp"), masterCpp);
+
+            return 0;
         }
 
         // Generate the glue

@@ -20,7 +20,7 @@ public static class Atlas
     public static Output GenerateGlue(FileInfo cpp)
     {
         // Check if this C++ file has any instance of the ExportComment
-        if (!File.ReadAllText(cpp.FullName).Contains(Options.ExportComment))
+        if (!File.ReadAllText(cpp.FullName).Contains(Options.ExportComment) || cpp.FullName.EndsWith($"{Options.FilePrefix}.h"))
             return default;
 
         OnPreGenerateGlue?.Invoke(cpp);
