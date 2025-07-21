@@ -1,5 +1,4 @@
-﻿using Atlas.Extensions;
-using CppAst;
+﻿using CppAst;
 
 namespace Atlas;
 

@@ -34,8 +34,8 @@ class Program
             FileInfo targetHeaderDebug = new FileInfo("Resources/test.h");
             Output glueDebug = Atlas.GenerateGlue(targetHeaderDebug);
 
-            string masterFile = Atlas.GenerateMasterCPP(new() { "test.h" });
-            Console.WriteLine(masterFile);
+            string masterFileDebug = Atlas.GenerateMasterCPP(new() { "test.h" });
+            Console.WriteLine(masterFileDebug);
 
             Console.WriteLine(glueDebug.CPP);
             Console.WriteLine(glueDebug.CS);
@@ -54,6 +54,10 @@ class Program
         // Write glue to files
         File.WriteAllText(Path.GetFileNameWithoutExtension(targetHeader.FullName) + ".g.h", glue.CPP);
         File.WriteAllText(Path.GetFileNameWithoutExtension(targetHeader.FullName) + ".g.cs", glue.CS);
+
+        // Write master file
+        string masterFile = Atlas.GenerateMasterCPP(new() { targetHeader.FullName });
+        File.WriteAllText(Path.GetFileNameWithoutExtension(targetHeader.FullName) + ".g.cpp", masterFile);
 
         return 0;
     }

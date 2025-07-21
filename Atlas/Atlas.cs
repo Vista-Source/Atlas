@@ -4,15 +4,29 @@ namespace Atlas;
 public static class Atlas
 {
     /// <summary>
+    /// Called when the Glue is first requested to be generated.
+    /// </summary>
+    public static Action<FileInfo> OnPreGenerateGlue { get; set; } = delegate { };
+
+    /// <summary>
+    /// Called when the Glue is generated.
+    /// </summary>
+    public static Action<Output> OnPostGenerateGlue { get; set; } = delegate { };
+
+    /// <summary>
     /// Generate Glue from C++.
     /// </summary>
     /// <param name="cpp">C++ Header File.</param>
     public static Output GenerateGlue(FileInfo cpp)
     {
+        OnPreGenerateGlue?.Invoke(cpp);
+
         Output output = new Output();
 
         output.CS = Glue.GenerateCS(cpp);
         output.CPP = Glue.GenerateCPP(cpp);
+
+        OnPostGenerateGlue?.Invoke(output);
 
         // Generate the Glue.
         return output;
