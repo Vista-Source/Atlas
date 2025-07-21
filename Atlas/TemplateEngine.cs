@@ -21,6 +21,6 @@ public static class TemplateEngine
         string templateText = File.ReadAllText(templatePath);
 
         var template = Template.Parse(templateText);
-        return template.Render(model, memberRenamer: member => member.Name);
+        return template.Render(model);
     }
 }

@@ -16,11 +16,23 @@ internal static class Glue
     /// <param name="cpp">C++ Header.</param>
     internal static string GenerateCPP(FileInfo cpp)
     {
-        var model = new
+        List<MethodInfo> methods = new List<MethodInfo>()
         {
-            method_name = "test",
-            return_type = "void",
+            new MethodInfo()
+            {
+                Name = "add",
+                ReturnType = "void",
+                Parameters = "int a, int b"
+            },
+            new MethodInfo()
+            {
+                Name = "subtract",
+                ReturnType = "int",
+                Parameters = "int a, int b"
+            }
         };
+
+        var model = new { methods = methods };
 
         return TemplateEngine.RenderTemplate("extern_c_wrapper", model);
     }
@@ -33,4 +45,11 @@ internal static class Glue
     {
         return "";
     }
+}
+
+public class MethodInfo
+{
+    public string Name { get; set; } = "";
+    public string ReturnType { get; set; } = "";
+    public string Parameters { get; set; } = "";
 }
