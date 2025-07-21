@@ -43,7 +43,7 @@ internal static class Glue
         }).ToList();
 
         var model = new { headers };
-        return TemplateEngine.RenderTemplate("master_cpp", model);
+        return TemplateEngine.RenderTemplate("atlas_master_wrapper", model);
     }
 
     /// <summary>
