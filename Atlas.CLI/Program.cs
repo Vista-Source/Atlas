@@ -8,10 +8,10 @@ class CLIOptions
     [Option('n', "namespace", Required = false, HelpText = "Default C# Namespace for generated code.")]
     public string Namespace { get; set; }
 
-    [Option('l', "libraryname", Required = true, HelpText = "Name of the C++ library that will hold the exported functions.")]
+    [Option('l', "libraryname", Required = false, HelpText = "Name of the C++ library that will hold the exported functions.")]
     public string LibraryName { get; set; }
 
-    [Option('t', "targetheader", Required = true, HelpText = "Target header file to generate glue for.")]
+    [Option('t', "targetheader", Required = false, HelpText = "Target header file to generate glue for.")]
     public string TargetHeader { get; set; }
 }
 
@@ -27,6 +27,19 @@ class Program
 
     static int RunOptionsAndReturnExitCode(CLIOptions opts)
     {
+#if DEBUG
+        // Debugging: Log the outputted glue
+        if (opts.TargetHeader == null)
+        {
+            FileInfo targetHeaderDebug = new FileInfo("Resources/test.h");
+            Output glueDebug = Atlas.GenerateGlue(targetHeaderDebug);
+
+            Console.WriteLine(glueDebug.CPP);
+            Console.WriteLine(glueDebug.CS);
+
+            return 0;
+        }
+#endif
         // Setup Atlas Options
         Options.Namespace = opts.Namespace;
         Options.LibraryName = opts.LibraryName;
