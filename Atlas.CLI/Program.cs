@@ -47,6 +47,37 @@ class Program
         Options.Namespace = opts.Namespace;
         Options.LibraryName = opts.LibraryName;
 
+        // Check if target is directory
+        if (Directory.Exists(opts.Target))
+        {
+            // Gather all .h headers in the target directory recursively
+            string[] headerPaths = Directory.GetFiles(opts.Target, "*.h", SearchOption.AllDirectories);
+
+            foreach (string header in headerPaths)
+            {
+                // Generate glue output (C++ and C#)
+                Output headerGlue = Atlas.GenerateGlue(new FileInfo(header));
+
+                // Determine base name (e.g., from folder name) for output files
+                string baseName = Path.GetFileNameWithoutExtension(header);
+                string outputDir = Path.GetDirectoryName(Path.GetFullPath(opts.Target)) ?? ".";
+
+                // Write generated glue files
+                File.WriteAllText(Path.Combine(outputDir, $"{baseName}.g.h"), headerGlue.CPP);
+                File.WriteAllText(Path.Combine(outputDir, $"{baseName}.g.cs"), headerGlue.CS);
+
+                // Generate and write master C++ glue file
+                List<string> relativeHeaders = headerPaths
+                    .Select(full => Path.GetRelativePath(outputDir, full).Replace('\\', '/'))
+                    .ToList();
+
+                string masterCpp = Atlas.GenerateMasterCPP(relativeHeaders);
+                File.WriteAllText(Path.Combine(outputDir, "Atlas.cpp"), masterCpp);
+
+                return 0;
+            }
+        }
+
         // Generate the glue
         FileInfo targetHeader = new FileInfo(opts.Target);
         Output glue = Atlas.GenerateGlue(targetHeader);
@@ -56,8 +87,8 @@ class Program
         File.WriteAllText(Path.GetFileNameWithoutExtension(targetHeader.FullName) + ".g.cs", glue.CS);
 
         // Write master file
-        string masterFile = Atlas.GenerateMasterCPP(new() { targetHeader.FullName });
-        File.WriteAllText(Path.GetFileNameWithoutExtension(targetHeader.FullName) + ".g.cpp", masterFile);
+        string masterFile = Atlas.GenerateMasterCPP(new() { Path.GetFileName(targetHeader.FullName) });
+        File.WriteAllText("Atlas.cpp", masterFile);
 
         return 0;
     }
