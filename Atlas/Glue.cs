@@ -109,10 +109,10 @@ internal static class Glue
             });
         }
 
-        var model = new
+        var model = new Dictionary<string, object>
         {
-            libName = Options.LibraryName,
-            methods = methods
+            ["libName"] = Options.LibraryName,
+            ["methods"] = methods
         };
 
         return TemplateEngine.RenderTemplate("pinvoke_wrapper", model);
