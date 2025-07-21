@@ -5,9 +5,9 @@
 #include "{{original_header}}"
 
 #ifdef _WIN32
-  #define API_EXPORT __declspec(dllexport)
+  #define ATLAS_EXPORT __declspec(dllexport)
 #else
-  #define API_EXPORT __attribute__((visibility("default")))
+  #define ATLAS_EXPORT __attribute__((visibility("default")))
 #endif
 
 #ifdef __cplusplus
@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 {{ for method in methods }}
-API_EXPORT {{ method.return_type }} ATLAS_{{ method.name }}({{ method.parameters }})
+ATLAS_EXPORT {{ method.return_type }} ATLAS_{{ method.name }}({{ method.parameters }})
 {
 {{- if method.return_type != "void" }}
     return {{ method.body }}
