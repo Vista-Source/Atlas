@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Atlas.Extensions;
 using CppAst;
 using Scriban;
 
@@ -80,6 +81,9 @@ internal static class Glue
         foreach (var message in parsedCPP.Diagnostics.Messages)
             Console.WriteLine(message);
 
+        // Read file lines for function body
+        var fileLines = File.ReadAllLines(cpp.FullName);
+
         // Parse top level (non classed) functions
         foreach (var function in parsedCPP.Functions)
         {
@@ -100,7 +104,8 @@ internal static class Glue
             {
                 Name = function.Name,
                 ReturnType = function.ReturnType.ToString(),
-                Parameters = parameters
+                Parameters = parameters,
+                Body = function.ExtractBody(fileLines)
             });
         }
 
@@ -119,4 +124,5 @@ public class MethodInfo
     public string Name { get; set; } = "";
     public string ReturnType { get; set; } = "";
     public string Parameters { get; set; } = "";
+    public string Body { get; set; } = "";
 }
