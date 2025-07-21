@@ -87,7 +87,7 @@ internal static class Glue
                 Name = function.Name,
                 ReturnType = function.ReturnType.ToString(),
                 Parameters = parameters,
-                Body = includeBody ? $"{function.Name}({typelessParameters});{Environment.NewLine}" : ""
+                Body = includeBody ? $"{function.Name}({typelessParameters});" : ""
             };
 
             methods.Add(method);

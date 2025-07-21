@@ -17,7 +17,11 @@ extern "C" {
 {{ for method in methods }}
 API_EXPORT {{ method.return_type }} ATLAS_{{ method.name }}({{ method.parameters }})
 {
-{{~ method.body ~}}
+{{- if method.return_type != "void" }}
+    return {{ method.body }}
+{{ else }}
+    {{ method.body }}
+{{ end }}
 }
 {{ end }}
 
