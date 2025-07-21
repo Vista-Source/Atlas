@@ -63,8 +63,8 @@ class Program
                 string outputDir = Path.GetDirectoryName(Path.GetFullPath(opts.Target)) ?? ".";
 
                 // Write generated glue files
-                File.WriteAllText(Path.Combine(outputDir, $"{baseName}.g.h"), headerGlue.CPP);
-                File.WriteAllText(Path.Combine(outputDir, $"{baseName}.g.cs"), headerGlue.CS);
+                File.WriteAllText(Path.Combine(outputDir, $"{baseName}.{Options.FilePrefix}.h"), headerGlue.CPP);
+                File.WriteAllText(Path.Combine(outputDir, $"{baseName}.{Options.FilePrefix}.cs"), headerGlue.CS);
 
                 // Generate and write master C++ glue file
                 List<string> relativeHeaders = headerPaths
@@ -83,8 +83,8 @@ class Program
         Output glue = Atlas.GenerateGlue(targetHeader);
 
         // Write glue to files
-        File.WriteAllText(Path.GetFileNameWithoutExtension(targetHeader.FullName) + ".g.h", glue.CPP);
-        File.WriteAllText(Path.GetFileNameWithoutExtension(targetHeader.FullName) + ".g.cs", glue.CS);
+        File.WriteAllText(Path.GetFileNameWithoutExtension(targetHeader.FullName) + $".{Options.FilePrefix}.h", glue.CPP);
+        File.WriteAllText(Path.GetFileNameWithoutExtension(targetHeader.FullName) + $".{Options.FilePrefix}.cs", glue.CS);
 
         // Write master file
         string masterFile = Atlas.GenerateMasterCPP(new() { Path.GetFileName(targetHeader.FullName) });

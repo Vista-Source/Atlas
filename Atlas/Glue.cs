@@ -32,7 +32,19 @@ internal static class Glue
     /// Generates the master C++ file that compiles all the generated headers.
     /// </summary>
     /// <param name="headers">Names of the generated headers.</param>
-    internal static string GenerateMasterCPP(List<string> headers) => TemplateEngine.RenderTemplate("atlas_master_wrapper", new { headers });
+    internal static string GenerateMasterCPP(List<string> headers)
+    {
+        // Add file prefix
+        headers = headers.Select(h =>
+        {
+            if (h.EndsWith(".h"))
+                return h[..^2] + $".{Options.FilePrefix}.h"; // remove ".h" and add ".prefix.h"
+            return h;
+        }).ToList();
+
+        var model = new { headers };
+        return TemplateEngine.RenderTemplate("master_cpp", model);
+    }
 
     /// <summary>
     /// Extracts exported methods from a C++ file.

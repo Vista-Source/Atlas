@@ -12,6 +12,11 @@ public static class Options
     public static string ExportComment = "[CSharpAPI]";
 
     /// <summary>
+    /// File prefix for generated files.
+    /// </summary>
+    public static string FilePrefix = "gen";
+
+    /// <summary>
     /// Default C# Namespace for generated code.
     /// </summary>
     public static string Namespace = "Atlas";
