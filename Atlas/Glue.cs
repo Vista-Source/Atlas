@@ -16,12 +16,13 @@ internal static class Glue
     /// <param name="cpp">C++ Header.</param>
     internal static string GenerateCPP(FileInfo cpp)
     {
-        var methods = new List<MethodInfo>()
+        var model = new
         {
-            new MethodInfo("TestMethod", "void", "")
+            method_name = "test",
+            return_type = "void",
         };
 
-        return TemplateEngine.RenderTemplate("extern_c_wrapper", new { methods });
+        return TemplateEngine.RenderTemplate("extern_c_wrapper", model);
     }
 
     /// <summary>
@@ -30,23 +31,6 @@ internal static class Glue
     /// <param name="cpp">C++ Header.</param>
     internal static string GenerateCS(FileInfo cpp)
     {
-
-
         return "";
-    }
-}
-
-
-public class MethodInfo
-{
-    public string name { get; set; } = "";
-    public string return_type { get; set; } = "";
-    public string @params { get; set; } = "";
-
-    public MethodInfo(string name, string return_type, string @params)
-    {
-        this.name = name;
-        this.return_type = return_type;
-        this.@params = @params;
     }
 }
