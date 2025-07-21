@@ -17,4 +17,11 @@ public static class Atlas
         // Generate the Glue.
         return output;
     }
+
+    /// <summary>
+    /// Generates the master C++ file that compiles all the generated headers.
+    /// </summary>
+    /// <remarks>If this master file isn't in the project, headers wont compile into the program.</remarks>
+    /// <param name="headers">Names of the generated headers.</param>
+    public static string GenerateMasterCPP(List<string> headers) => Glue.GenerateMasterCPP(headers);
 }

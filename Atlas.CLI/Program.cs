@@ -11,8 +11,8 @@ class CLIOptions
     [Option('l', "libraryname", Required = false, HelpText = "Name of the C++ library that will hold the exported functions.")]
     public string LibraryName { get; set; }
 
-    [Option('t', "targetheader", Required = false, HelpText = "Target header file to generate glue for.")]
-    public string TargetHeader { get; set; }
+    [Option('t', "target", Required = false, HelpText = "Target header or directory to generate glue for.")]
+    public string Target { get; set; }
 }
 
 class Program
@@ -29,10 +29,13 @@ class Program
     {
 #if DEBUG
         // Debugging: Log the outputted glue
-        if (opts.TargetHeader == null)
+        if (opts.Target == null)
         {
             FileInfo targetHeaderDebug = new FileInfo("Resources/test.h");
             Output glueDebug = Atlas.GenerateGlue(targetHeaderDebug);
+
+            string masterFile = Atlas.GenerateMasterCPP(new() { "test.h" });
+            Console.WriteLine(masterFile);
 
             Console.WriteLine(glueDebug.CPP);
             Console.WriteLine(glueDebug.CS);
@@ -45,7 +48,7 @@ class Program
         Options.LibraryName = opts.LibraryName;
 
         // Generate the glue
-        FileInfo targetHeader = new FileInfo(opts.TargetHeader);
+        FileInfo targetHeader = new FileInfo(opts.Target);
         Output glue = Atlas.GenerateGlue(targetHeader);
 
         // Write glue to files

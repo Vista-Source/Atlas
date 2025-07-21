@@ -1,7 +1,5 @@
-﻿using System.Text;
-using Atlas.Extensions;
+﻿using Atlas.Extensions;
 using CppAst;
-using Scriban;
 
 namespace Atlas;
 
@@ -30,6 +28,12 @@ internal static class Glue
         };
         return TemplateEngine.RenderTemplate("pinvoke_wrapper", model);
     }
+
+    /// <summary>
+    /// Generates the master C++ file that compiles all the generated headers.
+    /// </summary>
+    /// <param name="headers">Names of the generated headers.</param>
+    internal static string GenerateMasterCPP(List<string> headers) => TemplateEngine.RenderTemplate("atlas_master_wrapper", new { headers });
 
     /// <summary>
     /// Extracts exported methods from a C++ file.
