@@ -39,7 +39,7 @@ public class Extension : IExtension
             );
 
             // Write the project file to the "Generated" directory
-            var projectFilePath = Path.Combine(files.First().DirectoryName, "Generated", "Atlas.Generated.csproj");
+            var projectFilePath = Path.Combine(files.First().DirectoryName, "Generated", $"{Options.Namespace}.csproj");
             if (File.Exists(projectFilePath))
                 File.Delete(projectFilePath);
 
