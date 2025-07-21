@@ -59,9 +59,7 @@ public class Program
         }
 
         if (Directory.Exists(opts.Target))
-        {
             return GenerateGlueForDirectory(opts.Target);
-        }
 
         return GenerateGlueForFile(new FileInfo(opts.Target));
     }
@@ -78,7 +76,8 @@ public class Program
             if (string.IsNullOrEmpty(glue.CPP) || string.IsNullOrEmpty(glue.CS))
                 continue;
 
-            validHeaders.Add(header);
+            string fileName = Path.GetFileName(header); // just filename + extension
+            validHeaders.Add(fileName);
 
             string baseName = Path.GetFileNameWithoutExtension(header);
             string headerDir = Path.GetDirectoryName(header) ?? ".";
@@ -93,12 +92,7 @@ public class Program
             writtenFiles.Add(new FileInfo(csPath));
         }
 
-        var relativeHeaders = validHeaders
-            .Select(header =>
-                Path.GetRelativePath(targetDir, header).Replace('\\', '/'))
-            .ToList();
-
-        string masterCpp = Atlas.GenerateMasterCPP(relativeHeaders);
+        string masterCpp = Atlas.GenerateMasterCPP(validHeaders);
         var masterPath = Path.Combine(targetDir, "Atlas.cpp");
         File.WriteAllText(masterPath, masterCpp);
         writtenFiles.Add(new FileInfo(masterPath));
