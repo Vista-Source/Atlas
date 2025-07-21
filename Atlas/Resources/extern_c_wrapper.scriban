@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "{{original_header}}"
+
 #ifdef _WIN32
   #define API_EXPORT __declspec(dllexport)
 #else

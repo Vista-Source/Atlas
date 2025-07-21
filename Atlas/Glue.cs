@@ -10,7 +10,11 @@ internal static class Glue
     internal static string GenerateCPP(FileInfo cpp)
     {
         var methods = ExtractMethods(cpp, includeBody: true);
-        var model = new { methods };
+        var model = new Dictionary<string, object>
+        {
+            ["original_header"] = cpp.Name,
+            ["methods"] = methods
+        };
         return TemplateEngine.RenderTemplate("extern_c_wrapper", model);
     }
 
@@ -75,12 +79,15 @@ internal static class Glue
             var parameters = string.Join(", ",
                 function.Parameters.Select(p => $"{p.Type} {p.Name}"));
 
+            var typelessParameters = string.Join(", ",
+                function.Parameters.Select(p => $"{p.Name}"));
+
             var method = new MethodInfo
             {
                 Name = function.Name,
                 ReturnType = function.ReturnType.ToString(),
                 Parameters = parameters,
-                Body = includeBody ? function.ExtractBody(fileLines!) : ""
+                Body = includeBody ? $"{function.Name}({typelessParameters});{Environment.NewLine}" : ""
             };
 
             methods.Add(method);
