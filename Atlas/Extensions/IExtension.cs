@@ -11,5 +11,8 @@ namespace Atlas.Extensions;
 /// </summary>
 public interface IExtension
 {
+    /// <summary>
+    /// Called when the extension is loaded.
+    /// </summary>
     public void OnLoad();
 }

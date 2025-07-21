@@ -17,6 +17,9 @@ namespace Atlas.CLI
 
         [Option('t', "target", Required = false, HelpText = "Target header or directory to generate glue for.")]
         public string Target { get; set; }
+
+        [Option("extensions", Separator = ',', HelpText = "Comma-separated list of extension libraries to load.")]
+        public IEnumerable<string> Extensions { get; set; }
     }
 
     class Program
@@ -33,6 +36,22 @@ namespace Atlas.CLI
         {
             Options.Namespace = opts.Namespace;
             Options.LibraryName = opts.LibraryName;
+
+            foreach (var extension in opts.Extensions ?? Enumerable.Empty<string>())
+            {
+                if (!string.IsNullOrEmpty(extension))
+                {
+                    try
+                    {
+                        Extensions.ExtensionManager.LoadExtension(extension);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Failed to load extension '{extension}': {ex.Message}");
+                        return 1;
+                    }
+                }
+            }
 
             if (Directory.Exists(opts.Target))
             {

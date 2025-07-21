@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <ProjectReference Include="..\Atlas.CLI\Atlas.CLI.csproj" />
 	  <ProjectReference Include="..\Atlas\Atlas.csproj">
 		  <Private>false</Private>
 		  <ReferenceOutputAssembly>true</ReferenceOutputAssembly>

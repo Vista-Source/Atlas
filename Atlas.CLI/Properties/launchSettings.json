@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Atlas.CLI": {
-      "commandName": "Project",
-      "commandLineArgs": ""
-    }
-  }
-}
