@@ -19,6 +19,10 @@ public static class Atlas
     /// <param name="cpp">C++ Header File.</param>
     public static Output GenerateGlue(FileInfo cpp)
     {
+        // Check if this C++ file has any instance of the ExportComment
+        if (!File.ReadAllText(cpp.FullName).Contains(Options.ExportComment))
+            return default;
+
         OnPreGenerateGlue?.Invoke(cpp);
 
         Output output = new Output();

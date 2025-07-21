@@ -57,6 +57,8 @@ class Program
             {
                 // Generate glue output (C++ and C#)
                 Output headerGlue = Atlas.GenerateGlue(new FileInfo(header));
+                if (headerGlue.CPP == string.Empty || headerGlue.CS == string.Empty)
+                    continue;
 
                 // Determine base name (e.g., from folder name) for output files
                 string baseName = Path.GetFileNameWithoutExtension(header);
