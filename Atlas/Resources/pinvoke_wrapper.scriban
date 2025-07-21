@@ -1,0 +1,10 @@
+using System;
+using System.Runtime.InteropServices;
+
+internal static partial class NativeMethods
+{
+    {{~ for method in methods ~}}
+    [DllImport("{{ libName }}", CallingConvention = CallingConvention.Cdecl, EntryPoint = "{{ method.name }}")]
+    public static extern {{ method.return_type }} {{ method.name }}({{ method.parameters }});
+    {{~ end ~}}
+}
