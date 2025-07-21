@@ -1,39 +1,68 @@
 ﻿using CppAst;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Atlas.Extensions;
-
-public static class CppAstExtensions
+namespace Atlas.Extensions
 {
-    public static string ExtractBody(this CppFunction function, string[] fileLines)
+    public static class CppAstExtensions
     {
-        int startLine = function.Span.Start.Line - 1; // Convert to 0-based
-        int braceCount = 0;
-        bool started = false;
-        var bodyLines = new List<string>();
-
-        for (int i = startLine; i < fileLines.Length; i++)
+        public static string ExtractBody(this CppFunction function, string[] fileLines)
         {
-            string line = fileLines[i];
+            int startLine = function.Span.Start.Line - 1; // 0-based
+            int endLine = function.Span.End.Line;
 
-            if (!started)
+            // Find the line where the function body starts (the line containing the first '{')
+            int bodyStartLine = -1;
+            for (int i = startLine; i <= endLine && i < fileLines.Length; i++)
             {
-                if (line.Contains("{"))
+                if (fileLines[i].Contains("{"))
                 {
-                    started = true;
-                    braceCount += line.Count(c => c == '{') - line.Count(c => c == '}');
-                    bodyLines.Add(line);
+                    bodyStartLine = i;
+                    break;
                 }
             }
-            else
-            {
-                bodyLines.Add(line);
-                braceCount += line.Count(c => c == '{') - line.Count(c => c == '}');
 
-                if (braceCount <= 0)
+            if (bodyStartLine == -1)
+                return ""; // No body found
+
+            int braceCount = 0;
+            var bodyLines = new List<string>();
+
+            // From bodyStartLine, collect lines until braces are balanced
+            for (int i = bodyStartLine; i < fileLines.Length; i++)
+            {
+                string line = fileLines[i];
+                bodyLines.Add(line);
+
+                // Count '{' and '}' occurrences in the line
+                braceCount += line.Count(c => c == '{');
+                braceCount -= line.Count(c => c == '}');
+
+                // Once balanced (braceCount == 0), stop collecting
+                if (braceCount == 0)
                     break;
             }
+
+            // Combine collected lines and extract the inner body between braces
+            string body = ExtractInnerBody(string.Join("\n", bodyLines));
+            if (body.StartsWith("\n"))
+                body = body.Substring(1);
+
+            return body;
         }
 
-        return string.Join("\n", bodyLines);
+        public static string ExtractInnerBody(string fullFunction)
+        {
+            int startBrace = fullFunction.IndexOf('{');
+            int endBrace = fullFunction.LastIndexOf('}');
+
+            if (startBrace == -1 || endBrace == -1 || endBrace <= startBrace)
+                return "";
+
+            // Extract content inside the outermost braces
+            var body = fullFunction.Substring(startBrace + 1, endBrace - startBrace - 1);
+
+            return body;
+        }
     }
 }
