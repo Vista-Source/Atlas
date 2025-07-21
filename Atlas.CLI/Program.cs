@@ -5,107 +5,129 @@ using System.Linq;
 using CommandLine;
 using Atlas;
 
-namespace Atlas.CLI
+namespace Atlas.CLI;
+
+class CLIOptions
 {
-    class CLIOptions
+    [Option('n', "namespace", Required = false, HelpText = "Default C# Namespace for generated code.")]
+    public string Namespace { get; set; }
+
+    [Option('l', "libraryname", Required = false, HelpText = "Name of the C++ library that will hold the exported functions.")]
+    public string LibraryName { get; set; }
+
+    [Option('t', "target", Required = false, HelpText = "Target header or directory to generate glue for.")]
+    public string Target { get; set; }
+
+    [Option("extensions", Separator = ',', HelpText = "Comma-separated list of extension libraries to load.")]
+    public IEnumerable<string> Extensions { get; set; }
+}
+
+public class Program
+{
+    /// <summary>
+    /// Action to be called when files are written.
+    /// </summary>
+    public static Action<List<FileInfo>> OnWriteFiles { get; set; } = delegate { };
+
+    static int Main(string[] args)
     {
-        [Option('n', "namespace", Required = false, HelpText = "Default C# Namespace for generated code.")]
-        public string Namespace { get; set; }
-
-        [Option('l', "libraryname", Required = false, HelpText = "Name of the C++ library that will hold the exported functions.")]
-        public string LibraryName { get; set; }
-
-        [Option('t', "target", Required = false, HelpText = "Target header or directory to generate glue for.")]
-        public string Target { get; set; }
-
-        [Option("extensions", Separator = ',', HelpText = "Comma-separated list of extension libraries to load.")]
-        public IEnumerable<string> Extensions { get; set; }
+        return Parser.Default.ParseArguments<CLIOptions>(args)
+            .MapResult(
+                RunOptionsAndReturnExitCode,
+                _ => 1);
     }
 
-    class Program
+    static int RunOptionsAndReturnExitCode(CLIOptions opts)
     {
-        static int Main(string[] args)
-        {
-            return Parser.Default.ParseArguments<CLIOptions>(args)
-                .MapResult(
-                    RunOptionsAndReturnExitCode,
-                    _ => 1);
-        }
+        Options.Namespace = opts.Namespace;
+        Options.LibraryName = opts.LibraryName;
 
-        static int RunOptionsAndReturnExitCode(CLIOptions opts)
+        foreach (var extension in opts.Extensions ?? Enumerable.Empty<string>())
         {
-            Options.Namespace = opts.Namespace;
-            Options.LibraryName = opts.LibraryName;
-
-            foreach (var extension in opts.Extensions ?? Enumerable.Empty<string>())
+            if (!string.IsNullOrEmpty(extension))
             {
-                if (!string.IsNullOrEmpty(extension))
+                try
                 {
-                    try
-                    {
-                        Extensions.ExtensionManager.LoadExtension(extension);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"Failed to load extension '{extension}': {ex.Message}");
-                        return 1;
-                    }
+                    Extensions.ExtensionManager.LoadExtension(extension);
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Failed to load extension '{extension}': {ex.Message}");
+                    return 1;
                 }
             }
-
-            if (Directory.Exists(opts.Target))
-            {
-                return GenerateGlueForDirectory(opts.Target);
-            }
-
-            return GenerateGlueForFile(new FileInfo(opts.Target));
         }
 
-        static int GenerateGlueForDirectory(string targetDir)
+        if (Directory.Exists(opts.Target))
         {
-            var headers = Directory.GetFiles(targetDir, "*.h", SearchOption.AllDirectories);
-            var validHeaders = new List<string>();
-
-            foreach (var header in headers)
-            {
-                var glue = Atlas.GenerateGlue(new FileInfo(header));
-                if (string.IsNullOrEmpty(glue.CPP) || string.IsNullOrEmpty(glue.CS))
-                    continue;
-
-                validHeaders.Add(header);
-
-                string baseName = Path.GetFileNameWithoutExtension(header);
-                string headerDir = Path.GetDirectoryName(header) ?? ".";
-
-                File.WriteAllText(Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.h"), glue.CPP);
-                File.WriteAllText(Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.cs"), glue.CS);
-            }
-
-            // Generate Atlas.cpp at the root of the input dir
-            var relativeHeaders = validHeaders
-                .Select(header =>
-                    Path.GetRelativePath(targetDir, header).Replace('\\', '/'))
-                .ToList();
-
-            string masterCpp = Atlas.GenerateMasterCPP(relativeHeaders);
-            File.WriteAllText(Path.Combine(targetDir, "Atlas.cpp"), masterCpp);
-
-            return 0;
+            return GenerateGlueForDirectory(opts.Target);
         }
 
-        static int GenerateGlueForFile(FileInfo headerFile)
+        return GenerateGlueForFile(new FileInfo(opts.Target));
+    }
+
+    static int GenerateGlueForDirectory(string targetDir)
+    {
+        var writtenFiles = new List<FileInfo>();
+        var headers = Directory.GetFiles(targetDir, "*.h", SearchOption.AllDirectories);
+        var validHeaders = new List<string>();
+
+        foreach (var header in headers)
         {
-            var glue = Atlas.GenerateGlue(headerFile);
-            string baseName = Path.GetFileNameWithoutExtension(headerFile.FullName);
-            string headerDir = Path.GetDirectoryName(headerFile.FullName) ?? ".";
+            var glue = Atlas.GenerateGlue(new FileInfo(header));
+            if (string.IsNullOrEmpty(glue.CPP) || string.IsNullOrEmpty(glue.CS))
+                continue;
 
-            File.WriteAllText(Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.h"), glue.CPP);
-            File.WriteAllText(Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.cs"), glue.CS);
+            validHeaders.Add(header);
 
-            string masterCpp = Atlas.GenerateMasterCPP(new() { Path.GetFileName(headerFile.FullName) });
-            File.WriteAllText(Path.Combine(headerDir, "Atlas.cpp"), masterCpp);
+            string baseName = Path.GetFileNameWithoutExtension(header);
+            string headerDir = Path.GetDirectoryName(header) ?? ".";
 
-            return 0;
+            var cppPath = Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.h");
+            var csPath = Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.cs");
+
+            File.WriteAllText(cppPath, glue.CPP);
+            File.WriteAllText(csPath, glue.CS);
+
+            writtenFiles.Add(new FileInfo(cppPath));
+            writtenFiles.Add(new FileInfo(csPath));
         }
+
+        var relativeHeaders = validHeaders
+            .Select(header =>
+                Path.GetRelativePath(targetDir, header).Replace('\\', '/'))
+            .ToList();
+
+        string masterCpp = Atlas.GenerateMasterCPP(relativeHeaders);
+        var masterPath = Path.Combine(targetDir, "Atlas.cpp");
+        File.WriteAllText(masterPath, masterCpp);
+        writtenFiles.Add(new FileInfo(masterPath));
+
+        OnWriteFiles(writtenFiles);
+        return 0;
+    }
+
+    static int GenerateGlueForFile(FileInfo headerFile)
+    {
+        var writtenFiles = new List<FileInfo>();
+
+        var glue = Atlas.GenerateGlue(headerFile);
+        string baseName = Path.GetFileNameWithoutExtension(headerFile.FullName);
+        string headerDir = Path.GetDirectoryName(headerFile.FullName) ?? ".";
+
+        var cppPath = Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.h");
+        var csPath = Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.cs");
+        var masterPath = Path.Combine(headerDir, "Atlas.cpp");
+
+        File.WriteAllText(cppPath, glue.CPP);
+        File.WriteAllText(csPath, glue.CS);
+        File.WriteAllText(masterPath, Atlas.GenerateMasterCPP(new() { Path.GetFileName(headerFile.FullName) }));
+
+        writtenFiles.Add(new FileInfo(cppPath));
+        writtenFiles.Add(new FileInfo(csPath));
+        writtenFiles.Add(new FileInfo(masterPath));
+
+        OnWriteFiles(writtenFiles);
+        return 0;
     }
 }
