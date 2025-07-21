@@ -17,7 +17,7 @@ public static class TemplateEngine
     /// <returns>Rendered template.</returns>
     public static string RenderTemplate(string templateName, object model)
     {
-        string templatePath = Path.Combine("Resources", $"{templateName}.scriban");
+        string templatePath = Path.Combine(AppContext.BaseDirectory, "Resources", $"{templateName}.scriban");
         string templateText = File.ReadAllText(templatePath);
 
         var template = Template.Parse(templateText);

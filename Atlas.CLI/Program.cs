@@ -31,18 +31,6 @@ namespace Atlas.CLI
 
         static int RunOptionsAndReturnExitCode(CLIOptions opts)
         {
-#if DEBUG
-            if (opts.Target == null)
-            {
-                var testHeader = new FileInfo("Resources/test.h");
-                var glue = Atlas.GenerateGlue(testHeader);
-
-                Console.WriteLine(Atlas.GenerateMasterCPP(new() { "test.h" }));
-                Console.WriteLine(glue.CPP);
-                Console.WriteLine(glue.CS);
-                return 0;
-            }
-#endif
             Options.Namespace = opts.Namespace;
             Options.LibraryName = opts.LibraryName;
 
@@ -58,7 +46,6 @@ namespace Atlas.CLI
         {
             var headers = Directory.GetFiles(targetDir, "*.h", SearchOption.AllDirectories);
             var validHeaders = new List<string>();
-            var outputDir = Path.GetDirectoryName(Path.GetFullPath(targetDir)) ?? ".";
 
             foreach (var header in headers)
             {
@@ -67,19 +54,22 @@ namespace Atlas.CLI
                     continue;
 
                 validHeaders.Add(header);
-                string baseName = Path.GetFileNameWithoutExtension(header);
 
-                File.WriteAllText(Path.Combine(outputDir, $"{baseName}.{Options.FilePrefix}.h"), glue.CPP);
-                File.WriteAllText(Path.Combine(outputDir, $"{baseName}.{Options.FilePrefix}.cs"), glue.CS);
+                string baseName = Path.GetFileNameWithoutExtension(header);
+                string headerDir = Path.GetDirectoryName(header) ?? ".";
+
+                File.WriteAllText(Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.h"), glue.CPP);
+                File.WriteAllText(Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.cs"), glue.CS);
             }
 
+            // Generate Atlas.cpp at the root of the input dir
             var relativeHeaders = validHeaders
                 .Select(header =>
-                    Path.GetRelativePath(outputDir, header).Replace('\\', '/'))
+                    Path.GetRelativePath(targetDir, header).Replace('\\', '/'))
                 .ToList();
 
             string masterCpp = Atlas.GenerateMasterCPP(relativeHeaders);
-            File.WriteAllText(Path.Combine(outputDir, "Atlas.cpp"), masterCpp);
+            File.WriteAllText(Path.Combine(targetDir, "Atlas.cpp"), masterCpp);
 
             return 0;
         }
@@ -88,12 +78,13 @@ namespace Atlas.CLI
         {
             var glue = Atlas.GenerateGlue(headerFile);
             string baseName = Path.GetFileNameWithoutExtension(headerFile.FullName);
+            string headerDir = Path.GetDirectoryName(headerFile.FullName) ?? ".";
 
-            File.WriteAllText($"{baseName}.{Options.FilePrefix}.h", glue.CPP);
-            File.WriteAllText($"{baseName}.{Options.FilePrefix}.cs", glue.CS);
+            File.WriteAllText(Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.h"), glue.CPP);
+            File.WriteAllText(Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.cs"), glue.CS);
 
             string masterCpp = Atlas.GenerateMasterCPP(new() { Path.GetFileName(headerFile.FullName) });
-            File.WriteAllText("Atlas.cpp", masterCpp);
+            File.WriteAllText(Path.Combine(headerDir, "Atlas.cpp"), masterCpp);
 
             return 0;
         }
