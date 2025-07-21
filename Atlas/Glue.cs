@@ -5,117 +5,72 @@ using Scriban;
 
 namespace Atlas;
 
-/// <summary>
-/// Compiler C++/C#.
-/// </summary>
 internal static class Glue
 {
     /// <summary>
     /// Generates the extern "C" wrapper file.
     /// </summary>
-    /// <param name="cpp">C++ Header.</param>
     internal static string GenerateCPP(FileInfo cpp)
     {
-        var methods = new List<MethodInfo>();
-
-        CppParserOptions options = new CppParserOptions()
-        {
-            ParseSystemIncludes = false,
-            SystemIncludeFolders = {}
-        };
-
-        // Parse Cpp
-        var parsedCPP = CppParser.ParseFile(cpp.FullName, options);
-
-        // Print diagnostic messages
-        foreach (var message in parsedCPP.Diagnostics.Messages)
-            Console.WriteLine(message);
-
-        // Read file lines for function body
-        var fileLines = File.ReadAllLines(cpp.FullName);
-
-        // Parse top level (non classed) functions
-        foreach (var function in parsedCPP.Functions)
-        {
-            if (function.Comment.ToString() != Options.ExportComment)
-                continue;
-
-            // Collect parameter strings in a list
-            var paramList = new List<string>();
-            foreach (var parameter in function.Parameters)
-            {
-                paramList.Add($"{parameter.Type} {parameter.Name}");
-            }
-
-            // Join parameters with ", " (no trailing comma)
-            var parameters = string.Join(", ", paramList);
-
-            methods.Add(new MethodInfo
-            {
-                Name = function.Name,
-                ReturnType = function.ReturnType.ToString(),
-                Parameters = parameters,
-                Body = function.ExtractBody(fileLines)
-            });
-        }
-
-        var model = new { methods = methods };
-
+        var methods = ExtractMethods(cpp, includeBody: true);
+        var model = new { methods };
         return TemplateEngine.RenderTemplate("extern_c_wrapper", model);
     }
 
     /// <summary>
     /// Generates the P/Invoke C# wrapper file.
     /// </summary>
-    /// <param name="cpp">C++ Header.</param>
     internal static string GenerateCS(FileInfo cpp)
     {
-        var methods = new List<MethodInfo>();
-
-        CppParserOptions options = new CppParserOptions()
-        {
-            ParseSystemIncludes = false,
-            SystemIncludeFolders = { }
-        };
-
-        // Parse Cpp
-        var parsedCPP = CppParser.ParseFile(cpp.FullName, options);
-
-        // Print diagnostic messages
-        foreach (var message in parsedCPP.Diagnostics.Messages)
-            Console.WriteLine(message);
-
-        // Parse top level (non classed) functions
-        foreach (var function in parsedCPP.Functions)
-        {
-            if (function.Comment.ToString() != Options.ExportComment)
-                continue;
-
-            // Collect parameter strings in a list
-            var paramList = new List<string>();
-            foreach (var parameter in function.Parameters)
-            {
-                paramList.Add($"{parameter.Type} {parameter.Name}");
-            }
-
-            // Join parameters with ", " (no trailing comma)
-            var parameters = string.Join(", ", paramList);
-
-            methods.Add(new MethodInfo
-            {
-                Name = function.Name,
-                ReturnType = function.ReturnType.ToString(),
-                Parameters = parameters,
-            });
-        }
-
+        var methods = ExtractMethods(cpp, includeBody: false);
         var model = new Dictionary<string, object>
         {
             ["libName"] = Options.LibraryName,
             ["methods"] = methods
         };
-
         return TemplateEngine.RenderTemplate("pinvoke_wrapper", model);
+    }
+
+    /// <summary>
+    /// Extracts exported methods from a C++ file.
+    /// </summary>
+    private static List<MethodInfo> ExtractMethods(FileInfo cpp, bool includeBody)
+    {
+        var methods = new List<MethodInfo>();
+
+        var options = new CppParserOptions
+        {
+            ParseSystemIncludes = false,
+            SystemIncludeFolders = { }
+        };
+
+        var parsedCPP = CppParser.ParseFile(cpp.FullName, options);
+
+        foreach (var message in parsedCPP.Diagnostics.Messages)
+            Console.WriteLine(message);
+
+        var fileLines = includeBody ? File.ReadAllLines(cpp.FullName) : null;
+
+        foreach (var function in parsedCPP.Functions)
+        {
+            if (function.Comment.ToString() != Options.ExportComment)
+                continue;
+
+            var parameters = string.Join(", ",
+                function.Parameters.Select(p => $"{p.Type} {p.Name}"));
+
+            var method = new MethodInfo
+            {
+                Name = function.Name,
+                ReturnType = function.ReturnType.ToString(),
+                Parameters = parameters,
+                Body = includeBody ? function.ExtractBody(fileLines!) : ""
+            };
+
+            methods.Add(method);
+        }
+
+        return methods;
     }
 }
 
