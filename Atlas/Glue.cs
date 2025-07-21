@@ -22,6 +22,7 @@ internal static class Glue
         var methods = ExtractMethods(cpp, includeBody: false);
         var model = new Dictionary<string, object>
         {
+            ["namespace"] = Options.Namespace,
             ["libName"] = Options.LibraryName,
             ["methods"] = methods
         };

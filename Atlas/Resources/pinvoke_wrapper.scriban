@@ -3,6 +3,8 @@
 using System;
 using System.Runtime.InteropServices;
 
+namespace {{namespace}};
+
 internal static partial class NativeMethods
 {
     {{ for method in methods }}
