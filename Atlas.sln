@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atlas.Tests", "Atlas.Tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atlas.CLI", "Atlas.CLI\Atlas.CLI.csproj", "{C83121A1-2DEE-4518-9299-03D490A3EBE8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{CBC78FD6-DA9D-4FB2-96BE-70C61B617106}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atlas.ProjectFactory", "Atlas.ProjectFactory\Atlas.ProjectFactory.csproj", "{BB6CE371-1446-4BF8-8C9F-DF39F5ED4D0F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,9 +31,16 @@ Global
 		{C83121A1-2DEE-4518-9299-03D490A3EBE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C83121A1-2DEE-4518-9299-03D490A3EBE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C83121A1-2DEE-4518-9299-03D490A3EBE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB6CE371-1446-4BF8-8C9F-DF39F5ED4D0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB6CE371-1446-4BF8-8C9F-DF39F5ED4D0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB6CE371-1446-4BF8-8C9F-DF39F5ED4D0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB6CE371-1446-4BF8-8C9F-DF39F5ED4D0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BB6CE371-1446-4BF8-8C9F-DF39F5ED4D0F} = {CBC78FD6-DA9D-4FB2-96BE-70C61B617106}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A92CC401-845F-4511-AD41-D1741E678931}
