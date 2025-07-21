@@ -4,11 +4,15 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' AND '$(PackAsTool)' != 'true'">$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' AND '$(PackAsTool)' != 'true'">$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
+	</PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="ClangSharp" Version="20.1.2.1" />
-    <PackageReference Include="ClangSharp.Interop" Version="20.1.2.1" />
+    <PackageReference Include="CppAst" Version="0.23.1" />
     <PackageReference Include="Scriban" Version="6.2.1" />
   </ItemGroup>
 

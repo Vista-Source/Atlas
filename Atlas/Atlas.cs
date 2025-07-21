@@ -1,4 +1,5 @@
-﻿namespace Atlas;
+﻿
+namespace Atlas;
 
 public static class Atlas
 {

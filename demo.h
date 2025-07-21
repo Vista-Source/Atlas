@@ -1,12 +1,13 @@
 #pragma once
-#include <iostream>
 
 class MyClass
 {
 public:
-    MyClass();
-    void PrintMessage() const;
+    MyClass() = default;
 
-private:
-    int value;
+    // [CSharpAPI]
+    int Add(int a, int b) const;
 };
+
+// [CSharpAPI]
+int Add(int a, int b);
