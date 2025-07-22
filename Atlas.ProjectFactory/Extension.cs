@@ -15,7 +15,7 @@ public class Extension : IExtension
                 if (file.Name.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
                 {
                     // Move file to the "Generated" directory
-                    var generatedDir = Path.Combine(file.DirectoryName, "Generated");
+                    var generatedDir = Path.Combine(Environment.CurrentDirectory, "Generated");
                     if (!Directory.Exists(generatedDir))
                         Directory.CreateDirectory(generatedDir);
 
@@ -39,7 +39,8 @@ public class Extension : IExtension
             );
 
             // Write the project file to the "Generated" directory
-            var projectFilePath = Path.Combine(files.First().DirectoryName, "Generated", $"{Options.Namespace}.csproj");
+            Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, Environment.CurrentDirectory, "Generated"));
+            var projectFilePath = Path.Combine(Environment.CurrentDirectory, "Generated", $"{Options.Namespace}.csproj");
             if (File.Exists(projectFilePath))
                 File.Delete(projectFilePath);
 
