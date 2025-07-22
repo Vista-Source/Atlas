@@ -1,21 +1,35 @@
-﻿using CppAst;
+﻿using Atlas.Renderers;
+using CppAst;
+using System.Text;
 
 namespace Atlas;
 
 internal static class Glue
 {
+    internal static readonly List<IGlueRenderer> Renderers = new()
+    {
+        new FunctionRenderer()
+    };
+
     /// <summary>
     /// Generates the extern "C" wrapper file.
     /// </summary>
     internal static string GenerateCPP(FileInfo cpp)
     {
-        var methods = ExtractMethods(cpp, includeBody: true);
-        var model = new Dictionary<string, object>
+        var options = new CppParserOptions
         {
-            ["original_header"] = cpp.Name,
-            ["methods"] = methods
+            ParseSystemIncludes = false,
+            SystemIncludeFolders = { }
         };
-        return TemplateEngine.RenderTemplate("extern_c_wrapper", model);
+
+        var compilation = CppParser.ParseFile(cpp.FullName, options);
+
+        // Run each renderer
+        StringBuilder sb = new StringBuilder();
+        foreach(var renderer in Renderers)
+            sb.AppendLine(renderer.RenderCPP(compilation, cpp));
+
+        return sb.ToString();
     }
 
     /// <summary>
@@ -23,14 +37,19 @@ internal static class Glue
     /// </summary>
     internal static string GenerateCS(FileInfo cpp)
     {
-        var methods = ExtractMethods(cpp, includeBody: false);
-        var model = new Dictionary<string, object>
+        var options = new CppParserOptions
         {
-            ["namespace"] = Options.Namespace,
-            ["lib_name"] = Options.LibraryName,
-            ["methods"] = methods
+            ParseSystemIncludes = false,
+            SystemIncludeFolders = { }
         };
-        return TemplateEngine.RenderTemplate("pinvoke_wrapper", model);
+
+        var compilation = CppParser.ParseFile(cpp.FullName, options);
+
+        StringBuilder sb = new StringBuilder();
+        foreach (var renderer in Renderers)
+            sb.AppendLine(renderer.RenderCSharp(compilation, cpp));
+
+        return sb.ToString();
     }
 
     /// <summary>
@@ -50,57 +69,5 @@ internal static class Glue
         var model = new { headers };
         return TemplateEngine.RenderTemplate("atlas_master_wrapper", model);
     }
-
-    /// <summary>
-    /// Extracts exported methods from a C++ file.
-    /// </summary>
-    private static List<MethodInfo> ExtractMethods(FileInfo cpp, bool includeBody)
-    {
-        var methods = new List<MethodInfo>();
-
-        var options = new CppParserOptions
-        {
-            ParseSystemIncludes = false,
-            SystemIncludeFolders = { }
-        };
-
-        var parsedCPP = CppParser.ParseFile(cpp.FullName, options);
-
-        foreach (var message in parsedCPP.Diagnostics.Messages)
-            Console.WriteLine(message);
-
-        var fileLines = includeBody ? File.ReadAllLines(cpp.FullName) : null;
-
-        foreach (var function in parsedCPP.Functions)
-        {
-            if (function.Comment.ToString() != Options.ExportComment)
-                continue;
-
-            var parameters = string.Join(", ",
-                function.Parameters.Select(p => $"{p.Type} {p.Name}"));
-
-            var typelessParameters = string.Join(", ",
-                function.Parameters.Select(p => $"{p.Name}"));
-
-            var method = new MethodInfo
-            {
-                Name = function.Name,
-                ReturnType = function.ReturnType.ToString(),
-                Parameters = parameters,
-                Body = includeBody ? $"{function.Name}({typelessParameters});" : ""
-            };
-
-            methods.Add(method);
-        }
-
-        return methods;
-    }
 }
 
-public class MethodInfo
-{
-    public string Name { get; set; } = "";
-    public string ReturnType { get; set; } = "";
-    public string Parameters { get; set; } = "";
-    public string Body { get; set; } = "";
-}
