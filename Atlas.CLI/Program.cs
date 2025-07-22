@@ -97,6 +97,11 @@ public class Program
         File.WriteAllText(masterPath, masterCpp);
         writtenFiles.Add(new FileInfo(masterPath));
 
+        string masterHeader = Atlas.GenerateMasterHeader();
+        var masterHPath = Path.Combine(targetDir, "Atlas.h");
+        File.WriteAllText(masterHPath, masterHeader);
+        writtenFiles.Add(new FileInfo(masterHPath));
+
         OnWriteFiles(writtenFiles);
         return 0;
     }
@@ -112,10 +117,12 @@ public class Program
         var cppPath = Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.h");
         var csPath = Path.Combine(headerDir, $"{baseName}.{Options.FilePrefix}.cs");
         var masterPath = Path.Combine(headerDir, "Atlas.cpp");
+        var masterHPath = Path.Combine(headerDir, "Atlas.h");
 
         File.WriteAllText(cppPath, glue.CPP);
         File.WriteAllText(csPath, glue.CS);
         File.WriteAllText(masterPath, Atlas.GenerateMasterCPP(new() { Path.GetFileName(headerFile.FullName) }));
+        File.WriteAllText(masterHPath, Atlas.GenerateMasterHeader());
 
         writtenFiles.Add(new FileInfo(cppPath));
         writtenFiles.Add(new FileInfo(csPath));

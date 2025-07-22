@@ -1,9 +1,5 @@
 
-#ifdef _WIN32
-  #define ATLAS_EXPORT __declspec(dllexport)
-#else
-  #define ATLAS_EXPORT __attribute__((visibility("default")))
-#endif
+#include "Atlas.h"
 
 #ifdef __cplusplus
 extern "C" {

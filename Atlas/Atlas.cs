@@ -42,4 +42,10 @@ public static class Atlas
     /// <remarks>If this master file isn't in the project, headers wont compile into the program.</remarks>
     /// <param name="headers">Names of the generated headers.</param>
     public static string GenerateMasterCPP(List<string> headers) => Glue.GenerateMasterCPP(headers);
+
+    /// <summary>
+    /// Generates the master .h file that includes shared code.
+    /// </summary>
+    /// <remarks>If this master file isn't in the project, headers will error.</remarks>
+    public static string GenerateMasterHeader() => Glue.GenerateMasterHeader();
 }

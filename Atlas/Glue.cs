@@ -84,5 +84,14 @@ internal static class Glue
         var model = new { headers };
         return TemplateEngine.RenderTemplate("atlas_master_wrapper", model);
     }
+
+    /// <summary>
+    /// Generates the master .h file that includes shared code.
+    /// </summary>
+    internal static string GenerateMasterHeader()
+    {
+        var model = new { };
+        return TemplateEngine.RenderTemplate("atlas_master_header_wrapper", model);
+    }
 }
 
