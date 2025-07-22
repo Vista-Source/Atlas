@@ -1,5 +1,6 @@
 ﻿using CppAst;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Atlas;
 
@@ -15,11 +16,10 @@ internal enum TargetLanguage
 internal static class ConversionUtility
 {
     /// <summary>
-    /// Maps C++ types to C# equivalents.
+    /// Maps C++ primitive types to C# equivalents.
     /// </summary>
-    private static readonly Dictionary<string, string> CppToCSharpTypeMap = new()
+    private static readonly Dictionary<string, string> CppToCSharpPrimitiveTypeMap = new()
     {
-        // Primitive types
         ["void"] = "void",
         ["bool"] = "bool",
         ["char"] = "sbyte",
@@ -43,51 +43,56 @@ internal static class ConversionUtility
     /// <summary>
     /// Converts a C++ type to the appropriate target language syntax.
     /// </summary>
-    /// <param name="type">The C++ type to convert.</param>
-    /// <param name="target">The target language for conversion.</param>
-    /// <returns>The converted type name as a string.</returns>
     public static string NormalizeType(CppType type, TargetLanguage target)
     {
-        // Unwrap qualified types for consistent processing
         type = UnwrapQualifiedType(type);
 
         return type switch
         {
-            CppEnum e => e.Name,
-            CppClass c => c.Name,
-            CppTypedef td => td.Name,
-            CppPointerType ptr => HandlePointerType(ptr, target),
+            CppReferenceType refType => HandleReferenceType(refType, target),
+            CppPointerType ptrType => HandlePointerType(ptrType, target),
             CppPrimitiveType primType => HandlePrimitiveType(primType, target),
+            CppEnum cppEnum => cppEnum.Name,
+            CppClass cppClass => cppClass.Name,
+            CppTypedef cppTypedef => cppTypedef.Name,
             _ => type.ToString()
         };
     }
 
-    /// <summary>
-    /// Handles pointer type conversion logic.
-    /// </summary>
-    private static string HandlePointerType(CppPointerType ptr, TargetLanguage target)
+    private static string HandleReferenceType(CppReferenceType refType, TargetLanguage target)
     {
-        var elem = UnwrapQualifiedType(ptr.ElementType);
+        // For C#, we want to strip the reference (&) and const qualifiers
+        if (target == TargetLanguage.CSharp)
+        {
+            return NormalizeType(refType.ElementType, target);
+        }
+
+        // For C++, we want to preserve the reference but still normalize the underlying type
+        var elementType = NormalizeType(refType.ElementType, target);
+        return $"{elementType}&";
+    }
+
+    private static string HandlePointerType(CppPointerType ptrType, TargetLanguage target)
+    {
+        var elementType = UnwrapQualifiedType(ptrType.ElementType);
 
         // Special case: const char* -> string in C#
-        if (elem is CppPrimitiveType prim && prim.Kind == CppPrimitiveKind.Char)
+        if (elementType is CppPrimitiveType { Kind: CppPrimitiveKind.Char } &&
+            elementType.GetDisplayName().StartsWith("const "))
         {
-            return target == TargetLanguage.CSharp ? "string" : ptr.ToString();
+            return target == TargetLanguage.CSharp ? "string" : ptrType.ToString();
         }
 
         // General pointer handling: IntPtr for C#, original for C++
-        return target == TargetLanguage.CSharp ? "IntPtr" : ptr.ToString();
+        return target == TargetLanguage.CSharp ? "IntPtr" : ptrType.ToString();
     }
 
-    /// <summary>
-    /// Handles primitive type conversion logic.
-    /// </summary>
     private static string HandlePrimitiveType(CppPrimitiveType primType, TargetLanguage target)
     {
         string cppName = primType.ToString();
 
         if (target == TargetLanguage.CSharp &&
-            CppToCSharpTypeMap.TryGetValue(cppName, out var mapped))
+            CppToCSharpPrimitiveTypeMap.TryGetValue(cppName, out var mapped))
         {
             return mapped;
         }
@@ -96,12 +101,32 @@ internal static class ConversionUtility
     }
 
     /// <summary>
-    /// Recursively unwraps qualified types to get the underlying type.
+    /// Recursively unwraps qualified types (const, volatile, etc.) to get the underlying type.
     /// </summary>
     private static CppType UnwrapQualifiedType(CppType type)
     {
         while (type is CppQualifiedType qualified)
+        {
             type = qualified.ElementType;
+        }
         return type;
+    }
+
+    /// <summary>
+    /// Gets the display name of a type without qualifiers or references.
+    /// </summary>
+    private static string GetBaseTypeName(CppType type)
+    {
+        type = UnwrapQualifiedType(type);
+        return type switch
+        {
+            CppReferenceType refType => GetBaseTypeName(refType.ElementType),
+            CppPointerType ptrType => GetBaseTypeName(ptrType.ElementType),
+            CppPrimitiveType primType => primType.ToString(),
+            CppEnum cppEnum => cppEnum.Name,
+            CppClass cppClass => cppClass.Name,
+            CppTypedef cppTypedef => cppTypedef.Name,
+            _ => type.ToString()
+        };
     }
 }

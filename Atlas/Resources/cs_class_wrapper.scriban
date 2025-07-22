@@ -1,0 +1,87 @@
+
+namespace {{namespace}}
+{
+    {{ for class in classes }}
+    public class {{ class.name }} : IDisposable
+    {
+        private IntPtr _nativeInstance;
+        private bool _disposed = false;
+
+        {{# CONSTRUCTORS #}}
+        {{ for constructor in class.constructors }}
+        public {{ class.name }}({{ constructor.parameters }})
+        {
+            _nativeInstance = ATLAS_New_{{ class.name }}_{{ for.index }}({{ constructor.typeless_parameters }});
+        }
+        {{ end }}
+
+        {{# DESTRUCTOR #}}
+        ~{{ class.name }}()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (_nativeInstance != IntPtr.Zero)
+                {
+                    ATLAS_Destroy_{{ class.name }}(_nativeInstance);
+                    _nativeInstance = IntPtr.Zero;
+                }
+                _disposed = true;
+            }
+        }
+
+        {{# FIELDS #}}
+        {{ for field in class.fields }}
+        public {{ field.type }} {{ field.name }}
+        {
+            get => Atlas_Get{{ field.name }}(_nativeInstance);
+            set => Atlas_Set{{ field.name }}(_nativeInstance, value);
+        }
+        {{ end }}
+
+        {{# METHODS #}}
+        {{ for method in class.methods }}
+        public {{ method.return_type }} {{ method.name }}({{ method.parameters }})
+        {
+            {{ if method.return_type != "void" }}return {{ end }}ATLAS_{{ class.name }}_{{ method.name }}(_nativeInstance{{ if method.parameters != "" }}, {{ method.typeless_parameters }}{{ end }});
+        }
+        {{ end }}
+
+        {{# P/INVOKE DECLARATIONS #}}
+        #region NativeMethods
+        {{ for constructor in class.constructors }}
+        [DllImport("{{lib_name}}", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr ATLAS_New_{{ class.name }}_{{ for.index }}({{ constructor.parameters }});
+        {{ end }}
+
+        [DllImport("{{lib_name}}", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void ATLAS_Destroy_{{ class.name }}(IntPtr instance);
+
+        {{ for field in class.fields }}
+        [DllImport("{{lib_name}}", CallingConvention = CallingConvention.Cdecl)]
+        private static extern {{ field.type }} Atlas_Get{{ field.name }}(IntPtr instance);
+
+        [DllImport("{{lib_name}}", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void Atlas_Set{{ field.name }}(IntPtr instance, {{ field.type }} newVal);
+        {{ end }}
+
+        {{ for method in class.methods }}
+        [DllImport("{{lib_name}}", CallingConvention = CallingConvention.Cdecl)]
+        private static extern {{ method.return_type }} ATLAS_{{ class.name }}_{{ method.name }}(
+            IntPtr instance{{ if method.parameters != "" }}, {{ method.parameters }}{{ end }});
+
+        {{ end }}
+        #endregion
+    }
+    {{ end }}
+}

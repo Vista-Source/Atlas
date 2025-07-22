@@ -77,5 +77,6 @@ public class MethodInfo
     public string Name { get; set; } = "";
     public string ReturnType { get; set; } = "";
     public string Parameters { get; set; } = "";
+    public string TypelessParameters { get; set; } = "";
     public string Body { get; set; } = "";
 }

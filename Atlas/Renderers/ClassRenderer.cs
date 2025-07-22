@@ -82,6 +82,7 @@ internal class ClassRenderer : IGlueRenderer
                     Name = method.Name,
                     Parameters = string.Join(", ",
                         method.Parameters.Select(p => $"{ConversionUtility.NormalizeType(p.Type, target)} {p.Name}")),
+                    TypelessParameters = typelessParameters,
                     ReturnType = ConversionUtility.NormalizeType(method.ReturnType, target),
                     Body = $"{method.Name}({typelessParameters});"
 
