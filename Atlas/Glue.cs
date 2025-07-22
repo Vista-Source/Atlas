@@ -10,7 +10,8 @@ internal static class Glue
     {
         new FunctionRenderer(),
         new EnumRenderer(),
-        new FieldRenderer()
+        new FieldRenderer(),
+        new ClassRenderer()
     };
 
     /// <summary>

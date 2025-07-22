@@ -55,7 +55,7 @@ internal class FieldRenderer : IGlueRenderer
     }
 }
 
-internal class FieldInfo
+public class FieldInfo
 {
     public string Name { get; set; } = "";
     public string Type { get; set; } = "";
