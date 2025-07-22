@@ -10,7 +10,7 @@ namespace Atlas;
 /// <summary>
 /// Helpers for converting C++ stuff to C#.
 /// </summary>
-internal static class Conversion
+internal static class ConversionUtility
 {
     /// <summary>
     /// Converts a C++ type to a C# type.

@@ -54,7 +54,7 @@ internal class FunctionRenderer : IGlueRenderer
                 continue;
 
             var parameters = string.Join(", ",
-                function.Parameters.Select(p => $"{Conversion.NormalizeType(p.Type)} {p.Name}"));
+                function.Parameters.Select(p => $"{ConversionUtility.NormalizeType(p.Type)} {p.Name}"));
 
             var typelessParameters = string.Join(", ",
                 function.Parameters.Select(p => $"{p.Name}"));
