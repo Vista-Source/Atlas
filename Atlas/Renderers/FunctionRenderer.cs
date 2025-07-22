@@ -54,7 +54,7 @@ internal class FunctionRenderer : IGlueRenderer
                 continue;
 
             var parameters = string.Join(", ",
-                function.Parameters.Select(p => $"{NormalizeType(p.Type)} {p.Name}"));
+                function.Parameters.Select(p => $"{Conversion.NormalizeType(p.Type)} {p.Name}"));
 
             var typelessParameters = string.Join(", ",
                 function.Parameters.Select(p => $"{p.Name}"));
@@ -71,18 +71,6 @@ internal class FunctionRenderer : IGlueRenderer
         }
 
         return methods;
-    }
-
-    private static string NormalizeType(CppType type)
-    {
-        // If the type is an enum/struct/class, extract just the name
-        if (type is CppEnum enumType)
-            return enumType.Name;
-
-        if (type is CppTypedef typedef)
-            return typedef.Name;
-
-        return type.ToString();
     }
 }
 
