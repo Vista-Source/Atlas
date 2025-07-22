@@ -16,13 +16,13 @@
     <None Update="Resources\atlas_master_wrapper.scriban">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\enum_wrapper.scriban">
+    <None Update="Resources\cs_enum_wrapper.scriban">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\extern_c_wrapper.scriban">
+    <None Update="Resources\cpp_function_wrapper.scriban">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\pinvoke_wrapper.scriban">
+    <None Update="Resources\cs_function_wrapper.scriban">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

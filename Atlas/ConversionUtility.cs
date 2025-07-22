@@ -24,6 +24,9 @@ internal static class ConversionUtility
         if (type is CppTypedef typedef)
             return typedef.Name;
 
+        if (type is CppClass classType)
+            return classType.Name;
+
         return type.ToString();
     }
 }

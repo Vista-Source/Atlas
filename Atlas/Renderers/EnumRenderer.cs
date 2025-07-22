@@ -19,7 +19,7 @@ internal class EnumRenderer : IGlueRenderer
             ["enums"] = enums
         };
 
-        return TemplateEngine.RenderTemplate("enum_wrapper", model);
+        return TemplateEngine.RenderTemplate("cs_enum_wrapper", model);
     }
 
     private static List<EnumInfo> ExtractEnums(CppCompilation compilation)

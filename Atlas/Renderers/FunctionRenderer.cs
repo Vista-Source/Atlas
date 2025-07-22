@@ -16,7 +16,7 @@ internal class FunctionRenderer : IGlueRenderer
             ["methods"] = methods
         };
 
-        return TemplateEngine.RenderTemplate("extern_c_wrapper", model);
+        return TemplateEngine.RenderTemplate("cpp_function_wrapper", model);
     }
 
     public string RenderCSharp(CppCompilation compilation, FileInfo file)
@@ -29,7 +29,7 @@ internal class FunctionRenderer : IGlueRenderer
             ["methods"] = methods
         };
 
-        return TemplateEngine.RenderTemplate("pinvoke_wrapper", model);
+        return TemplateEngine.RenderTemplate("cs_function_wrapper", model);
     }
 
     /// <summary>
