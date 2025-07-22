@@ -13,7 +13,6 @@ internal class FunctionRenderer : IGlueRenderer
         var methods = ExtractMethods(compilation, includeBody: true);
         var model = new Dictionary<string, object>
         {
-            ["original_header"] = file.Name,
             ["methods"] = methods
         };
 
