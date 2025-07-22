@@ -9,7 +9,8 @@ internal static class Glue
     internal static readonly List<IGlueRenderer> Renderers = new()
     {
         new FunctionRenderer(),
-        new EnumRenderer()
+        new EnumRenderer(),
+        new FieldRenderer()
     };
 
     /// <summary>

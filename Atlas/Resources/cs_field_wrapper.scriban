@@ -1,0 +1,19 @@
+﻿namespace {{namespace}} 
+{
+    internal static partial class NativeFields
+    {
+        {{ for field in fields }}
+        public static {{ field.type }} {{ field.name }}
+        {
+            get => Atlas_Get{{ field.name }}();
+            set => Atlas_Set{{ field.name }}(value);
+        }
+
+        [System.Runtime.InteropServices.DllImport("AtlasNativeLib")]
+        private static extern {{ field.type }} Atlas_Get{{ field.name }}();
+
+        [System.Runtime.InteropServices.DllImport("AtlasNativeLib")]
+        private static extern void Atlas_Set{{ field.name }}({{ field.type }} value);
+        {{ end }}
+    }
+}
