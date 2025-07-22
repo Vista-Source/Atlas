@@ -92,11 +92,9 @@ public class Program
             writtenFiles.Add(new FileInfo(csPath));
         }
 
-        (string masterSource, string masterHeader) = Atlas.GenerateMasterCPP(validHeaders);
+        string masterCpp = Atlas.GenerateMasterCPP(validHeaders);
         var masterPath = Path.Combine(targetDir, "Atlas.cpp");
-        var masterHeaderPath = Path.Combine(targetDir, "Atlas.h");
-        File.WriteAllText(masterPath, masterSource);
-        File.WriteAllText(masterHeaderPath, masterHeader);
+        File.WriteAllText(masterPath, masterCpp);
         writtenFiles.Add(new FileInfo(masterPath));
 
         OnWriteFiles(writtenFiles);
@@ -117,9 +115,7 @@ public class Program
 
         File.WriteAllText(cppPath, glue.CPP);
         File.WriteAllText(csPath, glue.CS);
-
-        (string masterSource, string masterHeader) = Atlas.GenerateMasterCPP(new() { Path.GetFileName(headerFile.FullName) });
-        File.WriteAllText(masterPath, masterSource);
+        File.WriteAllText(masterPath, Atlas.GenerateMasterCPP(new() { Path.GetFileName(headerFile.FullName) }));
 
         writtenFiles.Add(new FileInfo(cppPath));
         writtenFiles.Add(new FileInfo(csPath));

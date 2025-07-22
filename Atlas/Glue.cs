@@ -15,7 +15,7 @@ internal static class Glue
             ["original_header"] = cpp.Name,
             ["methods"] = methods
         };
-        return TemplateEngine.RenderTemplate("methods", model);
+        return TemplateEngine.RenderTemplate("extern_c_wrapper", model);
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ internal static class Glue
     /// Generates the master C++ file that compiles all the generated headers.
     /// </summary>
     /// <param name="headers">Names of the generated headers.</param>
-    internal static (string source, string header) GenerateMasterCPP(List<string> headers)
+    internal static string GenerateMasterCPP(List<string> headers)
     {
         // Add file prefix
         headers = headers.Select(h =>
@@ -46,12 +46,9 @@ internal static class Glue
                 return h[..^2] + $".{Options.FilePrefix}.h"; // remove ".h" and add ".prefix.h"
             return h;
         }).ToList();
+
         var model = new { headers };
-
-        var source = TemplateEngine.RenderTemplate("atlas_master_wrapper", model);
-        var header = TemplateEngine.RenderTemplate("atlas_master_header_wrapper", model);
-
-        return (source, header);
+        return TemplateEngine.RenderTemplate("atlas_master_wrapper", model);
     }
 
     /// <summary>

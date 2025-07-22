@@ -16,13 +16,10 @@
     <None Update="Resources\atlas_master_wrapper.scriban">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\atlas_master_header_wrapper.scriban">
+    <None Update="Resources\extern_c_wrapper.scriban">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\pinvoke_wrapper.scriban">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\methods.scriban">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
