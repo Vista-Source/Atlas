@@ -3,12 +3,13 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace {{namespace}};
-
-internal static partial class NativeMethods
+namespace {{namespace}} 
 {
-    {{ for method in methods }}
-    [DllImport("{{ lib_name }}", CallingConvention = CallingConvention.Cdecl, EntryPoint = "ATLAS_{{ method.name }}")]
-    public static extern {{ method.return_type }} {{ method.name }}({{ method.parameters }});
-    {{ end }}
+    internal static partial class NativeMethods
+    {
+        {{ for method in methods }}
+        [DllImport("{{ lib_name }}", CallingConvention = CallingConvention.Cdecl, EntryPoint = "ATLAS_{{ method.name }}")]
+        public static extern {{ method.return_type }} {{ method.name }}({{ method.parameters }});
+        {{ end }}
+    }
 }

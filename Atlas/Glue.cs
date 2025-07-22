@@ -8,7 +8,8 @@ internal static class Glue
 {
     internal static readonly List<IGlueRenderer> Renderers = new()
     {
-        new FunctionRenderer()
+        new FunctionRenderer(),
+        new EnumRenderer()
     };
 
     /// <summary>
@@ -45,6 +46,7 @@ internal static class Glue
 
         var compilation = CppParser.ParseFile(cpp.FullName, options);
 
+        // Run each renderer
         StringBuilder sb = new StringBuilder();
         foreach (var renderer in Renderers)
             sb.AppendLine(renderer.RenderCSharp(compilation, cpp));

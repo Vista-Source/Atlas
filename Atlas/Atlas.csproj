@@ -16,6 +16,9 @@
     <None Update="Resources\atlas_master_wrapper.scriban">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\enum_wrapper.scriban">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\extern_c_wrapper.scriban">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
