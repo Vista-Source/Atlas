@@ -1,0 +1,14 @@
+#pragma once
+
+#ifdef _WIN32
+  #define ATLAS_EXPORT __declspec(dllexport)
+#else
+  #define ATLAS_EXPORT __attribute__((visibility("default")))
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Closing brace is located in the file this is included in,
+// don't freak out.
