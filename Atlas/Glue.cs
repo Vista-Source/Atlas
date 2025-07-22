@@ -27,7 +27,7 @@ internal static class Glue
         var model = new Dictionary<string, object>
         {
             ["namespace"] = Options.Namespace,
-            ["libName"] = Options.LibraryName,
+            ["lib_name"] = Options.LibraryName,
             ["methods"] = methods
         };
         return TemplateEngine.RenderTemplate("pinvoke_wrapper", model);
