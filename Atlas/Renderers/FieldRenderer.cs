@@ -23,8 +23,6 @@ internal class FieldRenderer : IGlueRenderer
 
         var model = new Dictionary<string, object>
         {
-            ["namespace"] = Options.Namespace,
-            ["lib_name"] = Options.LibraryName,
             ["fields"] = fields
         };
 
@@ -50,8 +48,6 @@ internal class FieldRenderer : IGlueRenderer
 
         var model = new Dictionary<string, object>
         {
-            ["namespace"] = Options.Namespace,
-            ["lib_name"] = Options.LibraryName,
             ["fields"] = fields
         };
 

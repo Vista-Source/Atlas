@@ -24,8 +24,6 @@ internal class FunctionRenderer : IGlueRenderer
         var methods = ExtractMethods(compilation, includeBody: false, target: TargetLanguage.CSharp);
         var model = new Dictionary<string, object>
         {
-            ["namespace"] = Options.Namespace,
-            ["lib_name"] = Options.LibraryName,
             ["methods"] = methods
         };
 

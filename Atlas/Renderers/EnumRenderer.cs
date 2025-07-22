@@ -15,7 +15,6 @@ internal class EnumRenderer : IGlueRenderer
         var enums = ExtractEnums(compilation);
         var model = new Dictionary<string, object>
         {
-            ["namespace"] = Options.Namespace,
             ["enums"] = enums
         };
 

@@ -9,10 +9,10 @@
             set => Atlas_Set{{ field.name }}(value);
         }
 
-        [System.Runtime.InteropServices.DllImport("AtlasNativeLib")]
+        [System.Runtime.InteropServices.DllImport("{{ lib_name }}")]
         private static extern {{ field.type }} Atlas_Get{{ field.name }}();
 
-        [System.Runtime.InteropServices.DllImport("AtlasNativeLib")]
+        [System.Runtime.InteropServices.DllImport("{{ lib_name }}")]
         private static extern void Atlas_Set{{ field.name }}({{ field.type }} value);
         {{ end }}
     }
