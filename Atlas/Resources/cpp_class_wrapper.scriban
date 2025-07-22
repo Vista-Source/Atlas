@@ -3,47 +3,41 @@ extern "C" {
 #endif
 
 {{ for class in classes }}
-
-    {{# CONSTRUCTORS #}}
+    // CONSTRUCTORS
     {{ for constructor in class.constructors }}
-ATLAS_EXPORT void* ATLAS_New_{{ class.name }}_{{ for.index }}({{ constructor.parameters }}) 
-{
-    return reinterpret_cast<void*>(new {{class.name}}({{constructor.typeless_parameters}}));
-}
+    ATLAS_EXPORT void* ATLAS_New_{{ class.name }}_{{ for.index }}({{ constructor.parameters }}) {
+        return reinterpret_cast<void*>(new {{ class.name }}({{ constructor.typeless_parameters }}));
+    }
     {{ end }}
 
-    {{# DESTRUCTOR #}}
-ATLAS_EXPORT void ATLAS_Destroy_{{ class.name }}(void* instance) 
-{
-    delete static_cast<Vector3*>(instance);
-}
+    // DESTRUCTOR
+    ATLAS_EXPORT void ATLAS_Destroy_{{ class.name }}(void* instance) {
+        delete static_cast<{{ class.name }}*>(instance);
+    }
 
-    {{# FIELDS #}}
+    // FIELDS
     {{ for field in class.fields }}
-ATLAS_EXPORT {{ field.type }} Atlas_Get{{ field.name }}(void* instance) 
-{
-    return static_cast<{{ class.name }}*>(instance)->{{ field.name }};
-}
+    ATLAS_EXPORT {{ field.type }} Atlas_Get{{ field.name }}(void* instance) {
+        return static_cast<{{ class.name }}*>(instance)->{{ field.name }};
+    }
 
-ATLAS_EXPORT void Atlas_Set{{ field.name }}(void* instance, {{ field.type }} newVal) 
-{
-    static_cast<{{ class.name }}*>(instance)->{{ field.name }} = newVal;
-}
+    ATLAS_EXPORT void Atlas_Set{{ field.name }}(void* instance, {{ field.type }} newVal) {
+        static_cast<{{ class.name }}*>(instance)->{{ field.name }} = newVal;
+    }
     {{ end }}
 
-    {{# METHODS #}}
-{{ for method in class.methods }}
-ATLAS_EXPORT {{ method.return_type }} ATLAS_{{ class.name }}_{{ method.name }}(
-    void* instance{{ if method.parameters != "" }}, {{ method.parameters }}{{ end }})
-{
-    {{- if method.return_type != "void" }}
-    return static_cast<{{ class.name }}*>(instance)->{{ method.body }}
-    {{ else }}
-    static_cast<{{ class.name }}*>(instance)->{{ method.body }}
+    // METHODS
+    {{ for method in class.methods }}
+    ATLAS_EXPORT {{ method.return_type }} ATLAS_{{ class.name }}_{{ method.name }}(
+        void* instance{{ if method.parameters != "" }}, {{ method.parameters }}{{ end }}
+    ) {
+        {{- if method.return_type != "void" }}
+        return static_cast<{{ class.name }}*>(instance)->{{ method.body }};
+        {{ else }}
+        static_cast<{{ class.name }}*>(instance)->{{ method.body }};
+        {{ end }}
+    }
     {{ end }}
-}
-{{ end }}
-
 {{ end }}
 
 #ifdef __cplusplus
