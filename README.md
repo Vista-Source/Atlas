@@ -5,4 +5,4 @@ The Base Atlas Library.
 The command line interface for Atlas.
 
 ## Atlis.Tests
-Test for Atlis.
+Test for Atlas.
