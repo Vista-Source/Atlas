@@ -1,0 +1,7 @@
+Hello {{ name }}!
+Today is {{ date }}.
+{% if is_active %}
+Status: Active
+{% else %}
+Status: Inactive
+{% end %}

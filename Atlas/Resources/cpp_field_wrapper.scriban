@@ -1,0 +1,18 @@
+﻿#ifdef __cplusplus
+extern "C" {
+#endif
+
+{{ for field in fields }}
+ATLAS_EXPORT {{ field.type }} Atlas_Get{{ field.name }}() 
+{
+	return {{ field.name }};
+}
+ATLAS_EXPORT void Atlas_Set{{ field.name }}({{ field.type }} newVal) 
+{
+	{{ field.name }} = newVal;
+}
+{{ end }}
+
+#ifdef __cplusplus
+}
+#endif
