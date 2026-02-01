@@ -1,0 +1,5 @@
+**/atlas_master_header_wrapper.scriban linguist-language=C++
+**/atlas_master_wrapper.scriban linguist-language=C++
+
+**/cpp_*.scriban linguist-language=C++
+**/cs_*.scriban linguist-language=C#
